@@ -1,28 +1,28 @@
 import { useEffect, useState } from 'react'
 
-type ThemeMode = 'light' | 'dark' | 'auto'
+type ThemeMode = 'light' | 'dark' | 'system'
 
 function getInitialMode(): ThemeMode {
   if (typeof window === 'undefined') {
-    return 'auto'
+    return 'system'
   }
 
   const stored = window.localStorage.getItem('theme')
-  if (stored === 'light' || stored === 'dark' || stored === 'auto') {
-    return stored
+  if (stored === 'light' || stored === 'dark' || stored === 'system') {
+    return stored as ThemeMode
   }
 
-  return 'auto'
+  return 'system'
 }
 
 function applyThemeMode(mode: ThemeMode) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  const resolved = mode === 'auto' ? (prefersDark ? 'dark' : 'light') : mode
+  const resolved = mode === 'system' ? (prefersDark ? 'dark' : 'light') : mode
 
   document.documentElement.classList.remove('light', 'dark')
   document.documentElement.classList.add(resolved)
 
-  if (mode === 'auto') {
+  if (mode === 'system') {
     document.documentElement.removeAttribute('data-theme')
   } else {
     document.documentElement.setAttribute('data-theme', mode)
@@ -41,12 +41,12 @@ export default function ThemeToggle() {
   }, [])
 
   useEffect(() => {
-    if (mode !== 'auto') {
+    if (mode !== 'system') {
       return
     }
 
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => applyThemeMode('auto')
+    const onChange = () => applyThemeMode('system')
 
     media.addEventListener('change', onChange)
     return () => {
@@ -56,10 +56,14 @@ export default function ThemeToggle() {
 
   function toggleMode() {
     const nextMode: ThemeMode =
-      mode === 'light' ? 'dark' : mode === 'dark' ? 'auto' : 'light'
+      mode === 'light' ? 'dark' : mode === 'dark' ? 'system' : 'light'
     setMode(nextMode)
     applyThemeMode(nextMode)
-    window.localStorage.setItem('theme', nextMode)
+    if (nextMode === 'system') {
+      window.localStorage.removeItem('theme')
+    } else {
+      window.localStorage.setItem('theme', nextMode)
+    }
   }
 
   const label =
