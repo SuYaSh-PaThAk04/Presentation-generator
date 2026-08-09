@@ -1,10 +1,36 @@
 import Navbar from '#/components/Navbar'
 import ThemeToggle from '#/components/theme-toggle'
+import { Button } from '#/components/ui/button'
+import { Label } from '#/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '#/components/ui/select'
+import { Slider } from '#/components/ui/slider'
 import { Switch } from '#/components/ui/switch'
+import { Textarea } from '#/components/ui/textarea'
+import {
+  LAYOUT_OPTIONS,
+  SLIDE_STYLES,
+  TONE_OPTIONS,
+} from '#/features/Presentations/Constant/presentation-options'
+import { PRESENTATION_TEMPLATES } from '#/features/Presentations/Constant/presentation-templetes'
 import { authClient } from '#/lib/auth-client'
 import { getSession } from '#/lib/auth.function'
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { Sparkles, Wand2 } from 'lucide-react'
 import { useState } from 'react'
+
+type HomeFormState = {
+  content: string
+  slideCount: number
+  style: (typeof SLIDE_STYLES)[number]['value']
+  tone: (typeof TONE_OPTIONS)[number]['value']
+  layout: (typeof LAYOUT_OPTIONS)[number]['value']
+}
 
 export const Route = createFileRoute('/')({
   beforeLoad: async ({ location }) => {
@@ -16,6 +42,7 @@ export const Route = createFileRoute('/')({
       })
     }
   },
+  component: Home,
 })
 function Home() {
   const [form, setForm] = useState<HomeFormState>({
@@ -29,10 +56,10 @@ function Home() {
   return (
     <main className="min-h-screen pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <PresentationListSection
+        {/*  <PresentationListSection
           presentations={presentations}
           isPending={listPending}
-        />
+        /> */}
 
         {/* Header */}
         <div className="text-center mb-10">
@@ -168,21 +195,21 @@ function Home() {
           <div className="flex justify-end pt-2">
             <Button
               size="lg"
-              onClick={handleGenerate}
-              disabled={createMut.isPending || !form.content.trim()}
+              //   onClick={handleGenerate}
+              //   disabled={createMut.isPending || !form.content.trim()}
               className="rounded-xl px-8 gap-2 font-semibold"
             >
-              {createMut.isPending ? (
+              {/*  {createMut.isPending ? (
                 <>
                   <Sparkles className="size-5 animate-pulse" />
                   Creating…
-                </>
+                </> 
               ) : (
                 <>
                   <Wand2 className="size-5" />
                   Generate PPT
                 </>
-              )}
+              )}*/}
             </Button>
           </div>
         </div>
