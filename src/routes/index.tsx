@@ -12,6 +12,8 @@ import {
 import { Slider } from '#/components/ui/slider'
 import { Switch } from '#/components/ui/switch'
 import { Textarea } from '#/components/ui/textarea'
+import { presentationQueryKeys } from '#/features/hooks/query-keys'
+import { createPresentation } from '#/features/Presentations/Actions/presentation-mutation'
 import {
   LAYOUT_OPTIONS,
   SLIDE_STYLES,
@@ -20,9 +22,11 @@ import {
 import { PRESENTATION_TEMPLATES } from '#/features/Presentations/Constant/presentation-templetes'
 import { authClient } from '#/lib/auth-client'
 import { getSession } from '#/lib/auth.function'
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { Sparkles, Wand2 } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 type HomeFormState = {
   content: string
@@ -45,6 +49,8 @@ export const Route = createFileRoute('/')({
   component: Home,
 })
 function Home() {
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const [form, setForm] = useState<HomeFormState>({
     content: '',
     slideCount: 8,
@@ -52,7 +58,38 @@ function Home() {
     tone: 'formal',
     layout: 'balanced',
   })
+  const createMut = useMutation({
+    mutationFn: () =>
+      createPresentation({
+        data: {
+          prompt: form.content.trim(),
+          slideCount: form.slideCount,
+          style: form.style,
+          tone: form.tone,
+          layout: form.layout,
+        },
+      }),
+    onSuccess: (presentation) => {
+      toast.success('Presentation Created !!')
+      queryClient.invalidateQueries({ queryKey: presentationQueryKeys.list() })
+      navigate({
+        to: '/presentation/$presentationId',
+        params: { presentationId: presentation.id },
+      })
+    },
+    onError: (error) => {
+      toast.error('Could not create presentation !!')
+      console.log(error.message)
+    },
+  })
 
+  const handleGenerate = () => {
+    if (!form.content) {
+      toast.error('Please enter your content first ')
+      return
+    }
+    createMut.mutate()
+  }
   return (
     <main className="min-h-screen pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
@@ -195,8 +232,8 @@ function Home() {
           <div className="flex justify-end pt-2">
             <Button
               size="lg"
-              //   onClick={handleGenerate}
-              //   disabled={createMut.isPending || !form.content.trim()}
+              onClick={handleGenerate}
+              disabled={createMut.isPending || !form.content.trim()}
               className="rounded-xl px-8 gap-2 font-semibold"
             >
               {/*  {createMut.isPending ? (
