@@ -12,7 +12,7 @@ import {
 import { Slider } from '#/components/ui/slider'
 import { Switch } from '#/components/ui/switch'
 import { Textarea } from '#/components/ui/textarea'
-import { presentationQueryKeys } from '#/features/hooks/query-keys'
+import { presentationQueryKeys } from '#/features/Presentations/hooks/query-keys'
 import { createPresentation } from '#/features/Presentations/Actions/presentation-mutation'
 import {
   LAYOUT_OPTIONS,
